@@ -1,61 +1,85 @@
-import pandas as pd
+import unidecode as ud
 
-word_beginnings = ['b','p','m','f','d','t','n','l','g','k','h','z','c','s','zh','ch','sh','r','j','q','w','x','y']
-word_endings = ['a','o','e','i','er','ai','ei','ao','ou','an','en','ang','eng','ong','ia','iao','ie','iu','ian','in','iang','ing','iong','u','ua','uo','uai','ui','uan','un','uang','ueng','ü','üe','üan','ün']
+def pinyin_converter(pinyin_to_convert):
+    word_beginnings = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 
+                       'z', 'c', 's', 'zh', 'ch', 'sh', 'r', 'j', 'q', 'w',
+                       'x', 'y']
 
-# input 
-# the script will read the input starting from the
-# END of the string to the BEGINNING of the string
+    word_endings = ['ueng', 'uang', 'iong', 'iang', 'üan', 'uan', 'uai',
+                     'ing', 'ian', 'iao', 'ong', 'eng', 'ang', 'ün', 'üe',
+                      'un', 'ui', 'uo', 'ua', 'in', 'iu', 'ie', 'ia', 'en',
+                      'an', 'ou', 'ao', 'ei', 'ai', 'er', 'ü', 'u', 'i', 'e',
+                       'o', 'a']
 
-# identify the word ending that has the longest len()
-# it then looks for the first instance of a beginning 
-# of a word and then repeat process until it reaches
-# the very beginning of the string
+    first_tones = ['ā', 'ē', 'ī', 'ō', 'ū', 'ǖ']
+    second_tones = ['á', 'é', 'í', 'ó', 'ú', 'ǘ']
+    third_tones = ['ǎ', 'ă', 'ě', 'ĕ', 'ǐ', 'ĭ', 'ǒ', 'ŏ', 'ǔ', 'ŭ', 'ǚ']
+    fourth_tones = ['à', 'è', 'ì', 'ò', 'ù', 'ǜ']
+    pinyin_vowels = ['a', 'e', 'i', 'o', 'u']
 
-words_constructed = []
-pinyin_converts = input("What pinyin do you want to convert?\n")
+    converted_word = ""
+    next_valid_index = 0
+    pinyin_to_convert = pinyin_to_convert.lower()
+    pinyin_to_convert = ''.join(pinyin_to_convert.split())
 
+    # For each index value/letter in pinyin_to_convert, check the first four 
+    # letters then three...two...and finally one letter to see if the 
+    # letter(s) are in the word_endings list.
+    for i, pinyin_letter in enumerate(pinyin_to_convert):
+        if i < next_valid_index:
+            continue
+        substring_one = pinyin_to_convert[i:i + 1]
+        substring_two = pinyin_to_convert[i:i + 2]
+        substring_three = pinyin_to_convert[i:i + 3]
+        substring_four = pinyin_to_convert[i:i + 4]
+        ending_match_found = False
 
-#For loop to identify longest possible ending in pinyin input. 
-#The longest possible ending in Chinese is four letters hence why we start at -4.
+        for ending in word_endings:
+            # If the letter(s) are in word_endings, append the letters to
+            # converted_word, update the value of next_valid_index and then
+            # continue iterating from the index value of next_valid_index.
+            if ud.unidecode(substring_four) == ending:
+                converted_word += substring_four + " "
+                next_valid_index = i + 4
+                ending_match_found = True
+                break
+            elif ud.unidecode(substring_three) == ending:
+                converted_word += substring_three + " "
+                next_valid_index = i + 3
+                ending_match_found = True
+                break
+            elif ud.unidecode(substring_two) == ending:
+                converted_word += substring_two + " "
+                next_valid_index = i + 2
+                ending_match_found = True
+                break
+            elif ud.unidecode(substring_one) == ending:
+                converted_word += substring_one + " "
+                next_valid_index = i + 1
+                ending_match_found = True
+                break
+            # If the letter(s) from the current index position are not in
+            # word_endings, append the letter at the current index position to
+            # converted_word and then continue iterating from the next
+            # immediate index value.
+        if not ending_match_found:
+            converted_word += pinyin_letter
 
-def PinyinParser(pinyin_converts):
-	if len(pinyin_converts) == 0:
-		return
-	for i in range(-4,0):
-		# print(pinyin_converts[i:])
-		pinyin_end_substring = pinyin_converts[i:]
-		if pinyin_end_substring in word_endings:
-			ending_index = len(pinyin_converts) + i
-			# print(pinyin_end_substring)
-			# For loop inside first If statement identifying the beginning of the word.
-			# It does this by starting two index positions in front of the ending_index 
-			# (which is the value of the first index of the identified word ending) until
-			# it identifies the beginning of the word (which will either be 1 or 2 letters long).
-			for j in range(ending_index-2, ending_index):
-				# print(pinyin_converts[i:])
-				pinyin_beg_substring = pinyin_converts[j:ending_index]
-				# print(pinyin_beg_substring)
-				if pinyin_beg_substring in word_beginnings:
-					pinyin_combined_substring = pinyin_beg_substring + pinyin_end_substring
-					words_constructed.insert(0, pinyin_combined_substring)
-					pinyin_converts = pinyin_converts[:j]
-					PinyinParser(pinyin_converts)
-					# print(pinyin_beg_substring)
-					# print(pinyin_converts)
-					break
-				else:
-					continue		
-			break
-		else:
-			continue
-# print(ending_index)		
-PinyinParser(pinyin_converts)
-print(words_constructed)
+    converted_words = converted_word.split()
 
-
-
-
-
-
-
+    # Check each letter in each word of converted_words and see if any of them
+    # are in the following tones lists. If they are, append the corresponding
+    # number of the tone to the end of the word.
+    formatted_word = ""
+    for word in converted_words:
+        formatted_word += ud.unidecode(word)
+        for letter in word:
+            if letter in first_tones:
+                formatted_word += '1'
+            elif letter in second_tones:
+                formatted_word += '2'
+            elif letter in third_tones:
+                formatted_word += '3'
+            elif letter in fourth_tones:
+                formatted_word += '4'
+    return formatted_word                 
