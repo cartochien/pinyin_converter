@@ -1,6 +1,15 @@
 import unidecode as ud
 
 def pinyin_converter(pinyin_to_convert):
+    """
+    Converts pinyin into numeric pinyin.
+
+    Parameters: 
+        pinyin_to_convert(str): the pinyin you want to convert e.g. 'nǐhǎo'
+    
+    Returns: 
+        formatted_word(str): the pinyin in numeric format e.g. 'ni3hao3'
+    """
     word_beginnings = ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 
                        'z', 'c', 's', 'zh', 'ch', 'sh', 'r', 'j', 'q', 'w',
                        'x', 'y']
@@ -82,4 +91,5 @@ def pinyin_converter(pinyin_to_convert):
                 formatted_word += '3'
             elif letter in fourth_tones:
                 formatted_word += '4'
-    return formatted_word                 
+    return formatted_word   
+             
